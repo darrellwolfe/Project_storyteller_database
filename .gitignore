@@ -1,0 +1,10 @@
+# Ignore the SQLite database file
+data/storytelling.db
+
+# Ignore Python virtual environment folders
+venv/
+ENV/
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
