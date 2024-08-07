@@ -89,7 +89,6 @@ table_headers = {
 layout = [
     [sg.Text('Storyteller Database Application')],
     [sg.Combo(list(table_headers.keys()), default_value="character_class_list", key='-TABLE_SELECT-', enable_events=True)],
-    [sg.Table(values=[], headings=[], display_row_numbers=False, auto_size_columns=False, col_widths=[], num_rows=20, key='-TABLE-', vertical_scroll_only=False, justification='left', enable_events=True)],
     [sg.Button('Refresh'), sg.Button('Add Entry'), sg.Button('Select Row for Editing'), sg.Button('Update Selected Row'), sg.Button('Reset Columns'), sg.Button('Exit')],
     [sg.Text('ID', size=(15, 1)), sg.InputText(key='-ID-', readonly=True)],
     [sg.Text('Field 1', size=(15, 1)), sg.InputText(key='-FIELD1-')],
@@ -108,7 +107,9 @@ def update_table_display(table):
     data = fetch_data(table)
     headers = table_headers[table]
     column_widths = calculate_column_widths(data, headers)
-    window['-TABLE-'].update(values=data, headings=headers, col_widths=column_widths)
+    table_element = sg.Table(values=data, headings=headers, display_row_numbers=False, auto_size_columns=False, col_widths=column_widths, num_rows=20, key='-TABLE-', vertical_scroll_only=False, justification='left', enable_events=True)
+    window.extend_layout(window, [[table_element]])
+    window['-TABLE-'].update(values=data)
     for i in range(1, 7):
         window[f'-FIELD{i}-'].update(visible=False)
     for i, header in enumerate(headers[1:], start=1):  # Skip ID column
