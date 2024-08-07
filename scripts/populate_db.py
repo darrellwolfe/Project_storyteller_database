@@ -29,7 +29,7 @@ def populate_character_class_list(db_path, df):
 
 def main():
     # Load the Excel file
-    file_path = 'path/to/your/excel/file.xlsm'
+    file_path = 'data/Fantasy_SciFi Novel_Placeholder.xlsm'
     xls = pd.ExcelFile(file_path)
 
     # Load the 'Character Class List' sheet to inspect its content
