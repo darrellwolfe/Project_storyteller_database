@@ -1,6 +1,40 @@
 import PySimpleGUI as sg
 import sqlite3
 
+# Function to ensure necessary tables exist
+def ensure_tables_exist():
+    conn = sqlite3.connect('data/storytelling.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS character_class_list (
+            id INTEGER PRIMARY KEY,
+            character_category TEXT,
+            character_class TEXT,
+            character_name_this_series TEXT,
+            lawful_chaotic_grid TEXT,
+            race_species TEXT,
+            character_class_description TEXT
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS assets (
+            id INTEGER PRIMARY KEY,
+            asset_name TEXT,
+            asset_type TEXT,
+            asset_description TEXT
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS locations (
+            id INTEGER PRIMARY KEY,
+            location_name TEXT,
+            location_description TEXT,
+            coordinates TEXT
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
 # Function to fetch data from the database
 def fetch_data(table):
     conn = sqlite3.connect('data/storytelling.db')
@@ -77,6 +111,9 @@ def calculate_column_widths(data, headers):
         for i, cell in enumerate(row):
             col_widths[i] = max(col_widths[i], len(str(cell)))
     return [width + 2 for width in col_widths]  # Add some padding
+
+# Ensure necessary tables exist
+ensure_tables_exist()
 
 # Define the table column headers
 table_headers = {
