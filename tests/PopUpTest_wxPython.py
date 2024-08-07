@@ -1,3 +1,4 @@
+# pip install wxPython 
 import wx
 
 app = wx.App(False)
