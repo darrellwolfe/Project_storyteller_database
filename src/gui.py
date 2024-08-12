@@ -1,6 +1,7 @@
 import PySimpleGUI as sg
 import sqlite3
 
+
 # Function to ensure necessary tables exist
 def ensure_tables_exist():
     conn = sqlite3.connect('data/storytelling.db')
