@@ -1,14 +1,3 @@
-<<<<<<< HEAD
-import tkinter as tk
-from tkinter import messagebox
-import sqlite3
-
-# Function to fetch data from the database
-def fetch_data():
-    conn = sqlite3.connect('data/storytelling.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM character_class_list")
-=======
 import PySimpleGUI as sg
 import sqlite3
 
@@ -17,18 +6,13 @@ def ensure_tables_exist():
     conn = sqlite3.connect('data/storytelling.db')
     cursor = conn.cursor()
     
-    # Check for each table
-    tables = [
-        'Story_Planning_Summary',
-        'Story_Planning_Detailed',
-        'Story_Structure_Overview',
-        'Character_Story_Archetype',
-        'Story_Archetype',
-        'Genre_SubGenre'
-    ]
-    
+    # Fetch all existing table names
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    existing_tables = cursor.fetchall()
+    tables = [table[0] for table in existing_tables]  # Fetch all existing table names
+
     for table in tables:
-        cursor.execute(f'CREATE TABLE IF NOT EXISTS {table} ("id" INTEGER PRIMARY KEY)')
+        cursor.execute(f'CREATE TABLE IF NOT EXISTS "{table}" ("id" INTEGER PRIMARY KEY)')
     
     conn.commit()
     conn.close()
@@ -38,31 +22,10 @@ def fetch_data(table):
     conn = sqlite3.connect('data/storytelling.db')
     cursor = conn.cursor()
     cursor.execute(f"SELECT * FROM {table}")
->>>>>>> e149d0ef2ab30b62df1c1d9af81f4931a3616c1a
     rows = cursor.fetchall()
     conn.close()
     return rows
 
-<<<<<<< HEAD
-# Function to display data in the message box
-def show_data():
-    rows = fetch_data()
-    message = ""
-    for row in rows:
-        message += f"ID: {row[0]}, Category: {row[1]}, Class: {row[2]}, Name: {row[3]}\n"
-    messagebox.showinfo("Character Class List", message)
-
-# Create the main application window
-root = tk.Tk()
-root.title("Storyteller Database Application")
-
-# Create a button to fetch and display data
-fetch_button = tk.Button(root, text="Fetch Data", command=show_data)
-fetch_button.pack(pady=20)
-
-# Start the Tkinter event loop
-root.mainloop()
-=======
 # Function to add a new entry to the selected table
 def add_entry(table, values):
     conn = sqlite3.connect('data/storytelling.db')
@@ -123,12 +86,15 @@ ensure_tables_exist()
 
 # Define the table column headers (fetched dynamically later)
 table_headers = {
-    'Story_Planning_Summary': [],
-    'Story_Planning_Detailed': [],
-    'Story_Structure_Overview': [],
-    'Character_Story_Archetype': [],
-    'Story_Archetype': [],
-    'Genre_SubGenre': []
+    'StoryStructure_StoryArchs': [],
+    'StoryStructure_CharacterArchs': [],
+    'Character_Class_List': [],
+    'LitRPG_Definitions_Tropes': [],
+    'LitRPG_Progress_Blank': [],
+    'LitRPG_Progress_Ex1': [],
+    'LitRPG_Progress_Ex2': [],
+    'Storyteller_Resources': [],
+    'Lawful-Chaotic_Good-Evil_Matrix': []
 }
 
 # Function to update table headers dynamically
@@ -139,7 +105,7 @@ def update_table_headers():
 # Define the window layout
 layout = [
     [sg.Text('Storyteller Database Application')],
-    [sg.Combo(list(table_headers.keys()), default_value="Story_Planning_Summary", key='-TABLE_SELECT-', enable_events=True)],
+    [sg.Combo(list(table_headers.keys()), default_value="StoryStructure_StoryArchs", key='-TABLE_SELECT-', enable_events=True)],
     [sg.Button('Refresh'), sg.Button('Add Entry'), sg.Button('Select Row for Editing'), sg.Button('Update Selected Row'), sg.Button('Reset Columns'), sg.Button('Exit')],
     [sg.Text('ID', size=(15, 1)), sg.InputText(key='-ID-', readonly=True)]
 ]
@@ -171,7 +137,7 @@ def update_table_display(table):
 update_table_headers()
 
 # Initial table display update
-update_table_display('Story_Planning_Summary')
+update_table_display('StoryStructure_StoryArchs')  # Update to the correct initial table name
 
 # Event loop to process events and get values of inputs
 while True:
@@ -208,7 +174,6 @@ while True:
         if confirm == 'Yes':
             reset_columns(values['-TABLE_SELECT-'])
             sg.popup_no_wait('Columns Reset!', keep_on_top=True)
-            update_table_display(values['-TABLE_SELECT-'])
+            update_table_display(table)
 
 window.close()
->>>>>>> e149d0ef2ab30b62df1c1d9af81f4931a3616c1a

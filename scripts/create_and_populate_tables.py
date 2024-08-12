@@ -1,5 +1,8 @@
 import sqlite3
 import pandas as pd
+import openpyxl
+
+# python scripts/create_and_populate_tables.py
 
 # Function to create and populate tables
 def create_and_populate_tables(excel_path):
@@ -7,7 +10,7 @@ def create_and_populate_tables(excel_path):
     cursor = conn.cursor()
 
     # Load the workbook to get sheet names
-    xls = pd.ExcelFile(excel_path)
+    xls = pd.ExcelFile('data/StorytellerDatabase_Tables.xlsm')
     
     # Iterate through each sheet in the workbook
     for sheet_name in xls.sheet_names:

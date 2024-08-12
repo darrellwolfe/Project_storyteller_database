@@ -6,5 +6,5 @@ def check_sheet_names(excel_path):
     print("Available sheet names:", xls.sheet_names)
 
 if __name__ == "__main__":
-    excel_path = 'data/Fantasy_SciFi Novel_Placeholder.xlsm'
+    excel_path = 'data/StorytellerDatabase_Tables.xlsm'
     check_sheet_names(excel_path)
