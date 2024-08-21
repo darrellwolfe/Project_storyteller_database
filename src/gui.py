@@ -2,6 +2,7 @@ import PySimpleGUI as sg
 import sqlite3
 import os
 
+# Create a global connection
 connection = sqlite3.connect(os.path.join(os.path.dirname(__file__), '../data/storytelling.db'))
 
 # Function to ensure necessary tables exist
@@ -12,37 +13,39 @@ def ensure_tables_exist():
     # Fetch all existing table names
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
     existing_tables = cursor.fetchall()
-    tables = [table[0] for table in existing_tables]  # Fetch all existing table names
+    tables = [table[0] for table in existing_tables if table[0] != 'sqlite_sequence']  # Exclude 'sqlite_sequence'
 
     for table in tables:
         cursor.execute(f'CREATE TABLE IF NOT EXISTS "{table}" ("id" INTEGER PRIMARY KEY)')
     
     conn.commit()
-    conn.close()
+
+# Function to fetch columns from the table
+def fetch_columns(table):
+    cursor = connection.cursor()
+    cursor.execute(f"PRAGMA table_info([{table}])")  # Use square brackets to quote the table name
+    columns = [info[1] for info in cursor.fetchall()]
+    return columns[1:]  # Exclude the id column
+
 
 # Function to fetch data from the database
 def fetch_data(table):
-    conn = connection
-    cursor = conn.cursor()
+    cursor = connection.cursor()
     cursor.execute(f"SELECT * FROM {table}")
     rows = cursor.fetchall()
-    conn.close()
     return rows
 
 # Function to add a new entry to the selected table
 def add_entry(table, values):
-    conn = connection
-    cursor = conn.cursor()
+    cursor = connection.cursor()
     columns = fetch_columns(table)
     placeholders = ', '.join(['?'] * len(columns))
     cursor.execute(f"INSERT INTO {table} ({', '.join(columns)}) VALUES ({placeholders})", values)
-    conn.commit()
-    conn.close()
+    connection.commit()
 
 # Function to update an existing entry in the selected table
 def update_entry(table, id, values):
-    conn = connection
-    cursor = conn.cursor()
+    cursor = connection.cursor()
     columns = fetch_columns(table)
     assignments = ', '.join([f'{col} = ?' for col in columns])
     cursor.execute(f'''
@@ -50,27 +53,15 @@ def update_entry(table, id, values):
         SET {assignments}
         WHERE id = ?
     ''', values + (id,))
-    conn.commit()
-    conn.close()
-
-# Function to fetch columns from the table
-def fetch_columns(table):
-    conn = connection
-    cursor = conn.cursor()
-    cursor.execute(f"PRAGMA table_info({table})")
-    columns = [info[1] for info in cursor.fetchall()]
-    conn.close()
-    return columns[1:]  # Exclude the id column
+    connection.commit()
 
 # Function to reset specific columns for all rows in the selected table
 def reset_columns(table):
-    conn = connection
-    cursor = conn.cursor()
+    cursor = connection.cursor()
     columns = fetch_columns(table)
     assignments = ', '.join([f'{col} = "None"' for col in columns])
     cursor.execute(f'UPDATE {table} SET {assignments}')
-    conn.commit()
-    conn.close()
+    connection.commit()
 
 # Function to calculate column widths
 def calculate_column_widths(data, headers):
@@ -83,6 +74,10 @@ def calculate_column_widths(data, headers):
                 # If there are more cells than headers, expand the list
                 col_widths.append(len(str(cell)))
     return [width + 2 for width in col_widths]  # Add some padding
+
+# Function to close the database connection
+def close_connection():
+    connection.close()
 
 # Ensure necessary tables exist
 ensure_tables_exist()
@@ -125,8 +120,7 @@ window = sg.Window('Storyteller Database Application', layout, resizable=True, s
 def update_table_display(table):
     data = fetch_data(table)
     headers = table_headers[table]
-    column_widths = calculate_column_widths(data, headers)
-    table_element = sg.Table(values=data, headings=headers, display_row_numbers=False, auto_size_columns=False, col_widths=column_widths, num_rows=20, key='-TABLE-', vertical_scroll_only=False, justification='left', enable_events=True)
+    table_element = sg.Table(values=data, headings=headers, display_row_numbers=False, auto_size_columns=True, num_rows=20, key='-TABLE-', vertical_scroll_only=False, justification='left', enable_events=True)
     window.extend_layout(window, [[table_element]])
     window['-TABLE-'].update(values=data)
     for i in range(1, max_columns + 1):
@@ -135,6 +129,7 @@ def update_table_display(table):
     for i, header in enumerate(headers):
         window[f'-LABEL{i+1}-'].update(value=header, visible=True)
         window[f'-FIELD{i+1}-'].update(visible=True)
+
 
 # Initial table headers update
 update_table_headers()
@@ -177,6 +172,7 @@ while True:
         if confirm == 'Yes':
             reset_columns(values['-TABLE_SELECT-'])
             sg.popup_no_wait('Columns Reset!', keep_on_top=True)
-            update_table_display(table)
+            update_table_display(values['-TABLE_SELECT-'])
 
-window.close()
+# Close the connection before the script ends
+close_connection()
