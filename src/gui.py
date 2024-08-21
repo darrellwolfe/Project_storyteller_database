@@ -1,10 +1,12 @@
 import PySimpleGUI as sg
 import sqlite3
+import os
 
+connection = sqlite3.connect(os.path.join(os.path.dirname(__file__), '../data/storytelling.db'))
 
 # Function to ensure necessary tables exist
 def ensure_tables_exist():
-    conn = sqlite3.connect('data/storytelling.db')
+    conn = connection
     cursor = conn.cursor()
     
     # Fetch all existing table names
@@ -20,7 +22,7 @@ def ensure_tables_exist():
 
 # Function to fetch data from the database
 def fetch_data(table):
-    conn = sqlite3.connect('data/storytelling.db')
+    conn = connection
     cursor = conn.cursor()
     cursor.execute(f"SELECT * FROM {table}")
     rows = cursor.fetchall()
@@ -29,7 +31,7 @@ def fetch_data(table):
 
 # Function to add a new entry to the selected table
 def add_entry(table, values):
-    conn = sqlite3.connect('data/storytelling.db')
+    conn = connection
     cursor = conn.cursor()
     columns = fetch_columns(table)
     placeholders = ', '.join(['?'] * len(columns))
@@ -39,7 +41,7 @@ def add_entry(table, values):
 
 # Function to update an existing entry in the selected table
 def update_entry(table, id, values):
-    conn = sqlite3.connect('data/storytelling.db')
+    conn = connection
     cursor = conn.cursor()
     columns = fetch_columns(table)
     assignments = ', '.join([f'{col} = ?' for col in columns])
@@ -53,7 +55,7 @@ def update_entry(table, id, values):
 
 # Function to fetch columns from the table
 def fetch_columns(table):
-    conn = sqlite3.connect('data/storytelling.db')
+    conn = connection
     cursor = conn.cursor()
     cursor.execute(f"PRAGMA table_info({table})")
     columns = [info[1] for info in cursor.fetchall()]
@@ -62,7 +64,7 @@ def fetch_columns(table):
 
 # Function to reset specific columns for all rows in the selected table
 def reset_columns(table):
-    conn = sqlite3.connect('data/storytelling.db')
+    conn = connection
     cursor = conn.cursor()
     columns = fetch_columns(table)
     assignments = ', '.join([f'{col} = "None"' for col in columns])

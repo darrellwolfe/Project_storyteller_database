@@ -13,3 +13,22 @@
 
 
 
+```{bash}
+.\.venv\Scripts\Activate.ps1
+
+```
+
+
+```{bash}
+cd src
+
+```
+
+
+```{bash}
+python main.py
+
+python gui.py
+
+```
+
